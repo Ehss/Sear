@@ -1,0 +1,43 @@
+Design Document:
+
+
+A Text Based Game Approach -
+
+
+Intro. 
+
+Concept Design:
+
+Instead of making a long chain of if statements, perhaps it may be practical to simply add a series of commands to a larger parser. 
+This larger parser can then be responsible for responding to what a user may type. 
+
+Here is my idea:
+
+addRoom("House-Interior"); 
+	// Adds an empty room to the room list
+addRoom("Garden");
+
+addStateToLocation("House-Interior",["Normal","Lights-On"]);
+	// Add various states which locations can be displayed. Great for unlocked doors, open drawers, lit candles, etc.
+addStateToLocation("Garden",["Normal","Hole-Dug"]);
+
+addItemToLocation("Shovel", "House-Interior");
+	// Initializing items at locations
+
+addRoomDescription("Garden","You see a beautiful garden, filled with roses. There is a mound of soft dirt.");
+
+
+addMovmentFromOneToTheNext(["House-Interior","Garden"],["Move South.","Go Outisde.","Go out through door."]); 
+	// Specify where you start, how you may proceed to target location, and final target location. 
+
+actionchangeState(hasShovel, ["Garden","Normal","Hole-Dug"],["Dig a hole.","Dig hole."]);
+	// Adds ways to change a room, based on primary condition.
+
+
+These kinds of statements will then help populate a HUGE dictionary of cases, and when it's set up properly, it'll let us update concepts very quickly. 
+
+Beyond this, we'll need a ton of boolean variables that will act like unlockable doors as the player progresses. 
+
+Then as we play test, we simply add other commands we think players might try. "Go up", "up", "go up ladder", and "go up the ladder" should all work to achieve the same goal in some context. 
+
+What do you think? Discuss!

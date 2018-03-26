@@ -162,9 +162,13 @@ function addItem(name)
 
 }
 
-function addLocation(name)
+function addLocation(names)
 {
-	locations.push(new Location(name));
+	for (var x = 0; x < names.length; x++)
+	{
+		locations.push(new Location(names[x]));
+		
+	}
 }
 
 function addItemToLocation(item, location)

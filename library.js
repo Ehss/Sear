@@ -9,7 +9,7 @@ var locations = [];
 
 class State{
 
-	constructor(name)
+	constructor(name,description)
 	{
 		this.name = name;
 		this.description = description;
@@ -184,6 +184,16 @@ function addMove(currentLocation, state, secondaryLocation, text)
 	// addMove("HouseInterior", ["DoorOpen"], "Garden", ["Go outside","Go south"]);
 }	
 
+function addStateDescripToLocation(location, state, description)
+{
+	for (var x = 0; x < locations.length; x++)
+	{
+		if (locations[x].name == location)
+		{
+			locations.states.push(new State(state, description));	
+		}
+	}
+}
 
 // In Game Functions
 
@@ -194,13 +204,14 @@ function lookAtRoom()
 }
 
 
+
 function getCurrentLocation()
 {
 	for (var x = 0; x < locations.length; x++)
 	{
 		if (currentLocation == locations[x].name)
 		{
-			return locations[x];
+			return locations[x].states[locations[x].activeState];
 		}
 	}
 }

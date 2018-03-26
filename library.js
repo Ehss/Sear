@@ -214,8 +214,41 @@ function getCurrentLocation()
 			return locations[x].states[locations[x].activeState];
 		}
 	}
-}
+
 
 }
 
+
+function tryToMove()
+{
+	for (var x = 0; x < moves.length; x++)
+	{
+		if (currentLocation == moves[x].startingLocation)
+		{
+			for(var z = 0; z < moves[x].possibleCommands.length; z++)
+			{
+				if (formated(userInput) == moves[x].possibleCommands[z])
+				{
+					for (var y = 0; y < moves[x].startingLocationStates.length; y++)
+					{
+						if (getState(currentLocation) == moves[x].startingLocationStates[y])
+						{
+							for (var a = 0; a < moves[x].targetLocationPossibleStates.length; a++)
+							{
+								if (getState(targetLocation) == moves[x].targetLocationPossibleStates[a])
+								{
+									currentLocation = targetLocation;
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+			
+		}
+	}
+
+	return false;
+}
 

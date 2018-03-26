@@ -176,12 +176,12 @@ function addItemToLocation(item, location)
 	locations[findLocationIndex(location)].addItem(item);
 }
 
-function addMove(currentLocation, state, secondaryLocation, text)
+function addMove(currentLocation, states, secondaryLocation, states text)
 {
 	// moving from one place to another
 	//
 	// Ex:
-	// addMove("HouseInterior", ["DoorOpen"], "Garden", ["Go outside","Go south"]);
+	// addMove("HouseInterior", ["DoorOpen"], "Garden", ["Normal"], ["Go outside","Go south"]);
 }	
 
 function addStateDescripToLocation(location, state, description)

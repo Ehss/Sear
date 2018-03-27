@@ -1,8 +1,8 @@
-
 var windowText = "";
 var currentLocation = "";
 
-var locations = [];
+var locations = [];	
+var moves = [];
 
 
 // Classes
@@ -19,6 +19,22 @@ class State{
 	{
 		return this.description;
 	}
+
+}
+
+class Move{
+
+	constructor(startingLocation, startingLocationStates, targetLocation, targetLocationStates, possibleCommands)
+	{
+		this.startingLocation = startingLocation;
+		this.startingLocationStates = startingLocationStates;
+		
+		this.targetLocation = targetLocation;
+		this.targetLocationStates = targetLocationStates;
+		
+		this.possibleCommands = possibleCommands;
+	}
+
 
 }
 
@@ -107,15 +123,11 @@ function findLocationIndex(location)
 		
 		Making Items
 			ex: var spoon = new Item("Spoon"));
-
 		Making Locations:
 			ex: addLocation("Kitchen");
-
 		addItemToLocation("Kitchen", spoon);
 	
-
 	Experimental: 
-
 		addAction(location, pieces);
 	
 */
@@ -128,24 +140,19 @@ function addAction(location, pieces)
 		
 		eg. 
 		addAction("Garden",["changeRoomState",["HoleDug"],"Normal",["Shovel"],["Dig hole","Use Shovel to dig hole."]]);
-
 		The logic here is that we are in the Garden.
 		We want to change the state of the Garden from state "Normal" to state "HoleDug".
 		The "Shovel" is required, and no other item is required. 
 		Possible commands will be "Dig Hole" and "Use Shovel to dig hole." (this is not an exhaustive list here).
-
 		In all actions, the back end will check the location and see if it matches the player's current location.
 		If it does, it'll check the current text and see if it matches one of the possible texts found in the action.
 		If it does, it'll check the required state and items (if required). 
 		If all checks out, it'll carry out the action. 
-
 		This whole function may get more complicated by the addition of error statements, along the line of 
 		No shovel = "You don't have anything to dig with!"
 		Wrong state = "You already dug a hole!"
 		- Actually, it might be better to have a function "errorStatement" that will be looked at when all else fails
-
 		Other Examples:
-
 		Opening a door:
 		addAction("HouseInterior",["changeRoomState",["DoorOpen"],"FrontDoorClosed",[],["Open Door","Open the door."]]);
 		
@@ -162,7 +169,7 @@ function addItem(name)
 
 }
 
-function addLocation(names)
+function addLocations(names)
 {
 	for (var x = 0; x < names.length; x++)
 	{
@@ -176,8 +183,9 @@ function addItemToLocation(item, location)
 	locations[findLocationIndex(location)].addItem(item);
 }
 
-function addMove(currentLocation, states, secondaryLocation, states text)
+function addMove(currentLocation, states, secondaryLocation, states, commands)
 {
+	moves.push(new Move(currentLocation, states, secondaryLocation, states, commands));
 	// moving from one place to another
 	//
 	// Ex:
@@ -190,7 +198,7 @@ function addStateDescripToLocation(location, state, description)
 	{
 		if (locations[x].name == location)
 		{
-			locations.states.push(new State(state, description));	
+			locations[x].states.push(new State(state, description));	
 		}
 	}
 }
@@ -199,8 +207,13 @@ function addStateDescripToLocation(location, state, description)
 
 function lookAtRoom()
 {
-	windowText = getCurrentLocation().look();
+	write(getCurrentLocation().look());
 	draw();
+}
+
+function write(n)
+{
+	document.getElementById("consoleText").innerHTML += "<p>" + n + "</p>";
 }
 
 
@@ -211,33 +224,49 @@ function getCurrentLocation()
 	{
 		if (currentLocation == locations[x].name)
 		{
-			return locations[x].states[locations[x].activeState];
+			return locations[x];
 		}
 	}
 
 
 }
 
+function getLocation(name)
+{
+	for (var x = 0; x < locations.length; x++)
+	{
+		if (name == locations[x].name)
+		{
+			return locations[x];
+		}
+	}
+}
+
+
+
+
 
 function tryToMove()
 {
 	for (var x = 0; x < moves.length; x++)
 	{
+		console.log(currentLocation);
+		console.log(moves[x].startingLocation);
 		if (currentLocation == moves[x].startingLocation)
-		{
+		{ 
 			for(var z = 0; z < moves[x].possibleCommands.length; z++)
 			{
-				if (formated(userInput) == moves[x].possibleCommands[z])
+				if (formated(userInput) == formated(moves[x].possibleCommands[z]))
 				{
 					for (var y = 0; y < moves[x].startingLocationStates.length; y++)
 					{
-						if (getState(currentLocation) == moves[x].startingLocationStates[y])
+						if (getState(currentLocation).name == moves[x].startingLocationStates[y])
 						{
-							for (var a = 0; a < moves[x].targetLocationPossibleStates.length; a++)
+							for (var a = 0; a < moves[x].targetLocationStates.length; a++)
 							{
-								if (getState(targetLocation) == moves[x].targetLocationPossibleStates[a])
+								if (getState(moves[x].targetLocation).name == moves[x].targetLocationStates[a])
 								{
-									currentLocation = targetLocation;
+									currentLocation = moves[x].targetLocation;
 									return true;
 								}
 							}
@@ -251,4 +280,59 @@ function tryToMove()
 
 	return false;
 }
+
+function getState(location)
+{	
+	var loc = getLocation(location);
+	return loc.states[loc.activeState];
+}
+
+function interpretText()
+{
+	if (formated(userInput) == "look")
+	{
+		write(getCurrentLocation().look());
+	}
+	else if (tryToMove())
+	{
+		write(getCurrentLocation().look());		
+	}
+	else
+	{
+		write("Sorry, I don't understand");
+	}
+}
+
+
+function formated(n)
+{
+	return n.trim().toLowerCase();
+}
+
+//////////////////////////////////////////////
+////////////// Start the Game/////////////////
+//////////////////////////////////////////////
+
+var userInput = "";
+
+var input = document.getElementById("myInput");
+
+// Execute a function when the user releases a key on the keyboard
+input.addEventListener("keyup", function(event) {
+  // Cancel the default action, if needed
+  event.preventDefault();
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Trigger the button element with a click
+    userInput = document.getElementById("myInput").value;
+    write("<span class='userInput'>"+userInput+"</span>");
+    userInput = formated(userInput);
+
+    document.getElementById("myInput").value = "";
+    interpretText();
+  }
+});
+
+
+
 

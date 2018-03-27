@@ -15,3 +15,8 @@ addStateDescripToLocation("MasterBedroomBath", "Normal", "You're standing in the
 
 addMove("MyBedroom", ["Normal"], "Hallway", ["Normal"], ["Go West","West","W"]);
 addMove("Hallway", ["Normal"], "MyBedroom", ["Normal"], ["Go East","East","E"]);
+
+addMove("Hallway", ["Normal"], "Bathroom", ["Normal"], ["Go Southeast","Southeast","se"]);
+addMove("Bathroom", ["Normal"], "Hallway", ["Normal"], ["Go Northwest","Northwest","nw"]);
+
+currentLocation = "MyBedroom";

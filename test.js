@@ -19,4 +19,7 @@ addMove("Hallway", ["Normal"], "MyBedroom", ["Normal"], ["Go East","East","E"]);
 addMove("Hallway", ["Normal"], "Bathroom", ["Normal"], ["Go Southeast","Southeast","se"]);
 addMove("Bathroom", ["Normal"], "Hallway", ["Normal"], ["Go Northwest","Northwest","nw"]);
 
+addMove("Hallway", ["Normal"], "GuestBedroom", ["Normal"], ["Go South","South","s","Move South"]);
+addMove("GuestBedroom", ["Normal"], "Hallway", ["Normal"], ["Go North","North","n","Move North"]);
+
 currentLocation = "MyBedroom";

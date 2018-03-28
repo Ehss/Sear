@@ -297,10 +297,39 @@ function interpretText()
 	{
 		write(getCurrentLocation().look());		
 	}
+	else if (isDirectionalMove(userInput))
+	{
+		write("You cannot move that way.");
+	}
 	else
 	{
 		write("Sorry, I don't understand");
 	}
+}
+
+
+var moveDirections = ["go west","go east","go south","go north","go up","go down",
+"go southeast","go southwest","go northeast","go northwest",
+"go south east","go south west","go north east","go north west",
+"move west","move east","move south","move north","move up","move down",
+"move southeast","move southwest","move northeast","move northwest",
+"move south east","move south west","move north east","move north west",
+"west","east","south","north","up","down",
+"southeast","southwest","northeast","northwest",
+"south east","south west","north east","north west",
+"w","e","s","n","u","d","se","sw","ne","nw","se","sw","ne","nw",
+
+]
+function isDirectionalMove(n)
+{	
+	for(var x = 0; x < moveDirections.length; x++)
+	{
+		if (formated(n) == formated(moveDirections[x]))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 

@@ -4,6 +4,7 @@ var currentLocation = "";
 var locations = [];	
 var moves = [];
 
+var playerInventory = [];
 
 // Classes
 
@@ -17,6 +18,7 @@ class State{
 
 	look()
 	{
+
 		return this.description;
 	}
 
@@ -48,6 +50,23 @@ class Item{
 		this.activeState = 0;
 	}
 
+	look()
+	{
+		return this.states[this.activeState].look();
+	}
+	addState(state)
+	{
+		for (var x = 0; x < this.states.length; x++)
+		{
+			if (this.states[x].name == state.name)
+			{
+				this.states[x].description = state.description;
+				console.log("State already Exists, replaced description of '" + this.name + " - " + state.name);
+				return;
+			}
+		}
+		this.states.push(state);
+	}
 
 }
 
@@ -164,11 +183,6 @@ function addAction(location, pieces)
 	*/
 }
 
-function addItem(name)
-{
-
-}
-
 function addLocations(names)
 {
 	for (var x = 0; x < names.length; x++)
@@ -208,7 +222,15 @@ function addStateDescripToLocation(location, state, description)
 function lookAtRoom()
 {
 	write(getCurrentLocation().look());
-	draw();
+
+	if (getCurrentLocation().items.length > 0)
+	{
+		write("You see: ");
+		for (var x = 0; x < getCurrentLocation().items.length; x++)
+		{
+			write(getCurrentLocation().items[x].name);
+		}
+	}
 }
 
 function write(n)
@@ -250,8 +272,6 @@ function tryToMove()
 {
 	for (var x = 0; x < moves.length; x++)
 	{
-		console.log(currentLocation);
-		console.log(moves[x].startingLocation);
 		if (currentLocation == moves[x].startingLocation)
 		{ 
 			for(var z = 0; z < moves[x].possibleCommands.length; z++)
@@ -289,22 +309,109 @@ function getState(location)
 
 function interpretText()
 {
-	if (formated(userInput) == "look")
+	var text = formated(userInput);
+	if (text.startsWith("get ") || text.startsWith("take "))
 	{
-		write(getCurrentLocation().look());
+		if (text.startsWith("get "))
+		{
+			text = text.substring(4, text.length);
+		}
+		else if (text.startsWith("take "))
+		{
+			text = text.substring(5, text.length);
+		}
+
+		for (var x = 0; x < getCurrentLocation().items.length; x++)
+		{
+			if (text == formated(getCurrentLocation().items[x].name))
+			{
+				playerInventory.push(getCurrentLocation().items[x]);
+				write("You got the " + formated(getCurrentLocation().items[x].name) + ".");
+				getCurrentLocation().items.splice(x,1);
+				return;
+			}
+		}
+		write("I don't see the " + text + ".");
+		return;
+	}	
+	else if (text.startsWith("drop "))
+	{
+		text = text.substring(5	, text.length);
+		for (var x = 0; x < playerInventory.length; x++)
+		{
+			if (text == formated(playerInventory[x].name))
+			{
+				getCurrentLocation().addItem(playerInventory[x]);
+				write("You dropped the " + formated(playerInventory[x].name) + ".");
+				playerInventory.splice(x,1);
+				return;
+			}
+		}
+		write("You don't have the " + text + ".");
+	}
+	else if (text.startsWith("check ") || text.startsWith("look at "))
+	{
+		if (text.startsWith("check "))
+		{
+			text = text.substring(6	, text.length);
+		}
+		else if (text.startsWith("look at "))
+		{
+			text = text.substring(8	, text.length);
+		}
+		
+		var item = itemInArea(text);
+		if (item != null)
+		{
+			write(item.look());
+		}
+		else
+		{
+
+			write("There is no " + text + " to look at.");
+		}
+	}
+	else if (text == "look")
+	{
+		lookAtRoom();
 	}
 	else if (tryToMove())
 	{
-		write(getCurrentLocation().look());		
+		lookAtRoom();
 	}
-	else if (isDirectionalMove(userInput))
+	else if (isDirectionalMove(text))
 	{
 		write("You cannot move that way.");
 	}
+	else if (text == "look at inventory" || text == "inventory")
+	{
+		if (playerInventory.length > 0)
+		{
+			write("You are carrying:");
+
+			var itemText = "";
+			for (var x = 0; x < playerInventory.length; x++)
+			{
+				if (x != 0)
+				{
+					itemText += ", ";
+				}
+				itemText += playerInventory[x].name;
+			}
+			write(itemText);
+		}
+		else
+		{
+			write ("You are carrying nothing.")
+		}
+	}
+
 	else
 	{
 		write("Sorry, I don't understand");
 	}
+
+
 }
 
 
@@ -324,7 +431,7 @@ function isDirectionalMove(n)
 {	
 	for(var x = 0; x < moveDirections.length; x++)
 	{
-		if (formated(n) == formated(moveDirections[x]))
+		if (n == moveDirections[x])
 		{
 			return true;
 		}
@@ -332,10 +439,35 @@ function isDirectionalMove(n)
 	return false;
 }
 
+function itemInArea(name)
+{
+	for (var x = 0; x < getCurrentLocation().items.length; x++)
+	{
+		if (formated(getCurrentLocation().items[x].name) == formated(name))
+		{
+			return getCurrentLocation().items[x];
+		}
+	}
+	for (var x = 0; x < playerInventory.length; x++)
+	{
+		if (formated(playerInventory[x].name) == formated(name))
+		{
+			return playerInventory[x];
+		}
+	}
+
+	return null;
+}
+
 
 function formated(n)
 {
 	return n.trim().toLowerCase();
+}
+
+function addPossibleAction(conditions,actions)
+{
+	
 }
 
 //////////////////////////////////////////////

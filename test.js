@@ -23,3 +23,11 @@ addMove("Hallway", ["Normal"], "GuestBedroom", ["Normal"], ["Go South","South","
 addMove("GuestBedroom", ["Normal"], "Hallway", ["Normal"], ["Go North","North","n","Move North"]);
 
 currentLocation = "MyBedroom";
+
+var apple = new Item("Apple");
+apple.addState(new State("Normal","The apple is shiny and red. Looks good enough to eat!"));
+
+
+addItemToLocation(apple, "MyBedroom");
+
+

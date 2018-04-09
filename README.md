@@ -1,4 +1,4 @@
-# text-based-adventure
+# Sear: A Text Based Adventure
 
 To start a journey is to start at the beginning. This is to be a Zork clone, with our own twists and features. 
 

@@ -290,6 +290,7 @@ function tryToMove()
 								if (getState(moves[x].targetLocation).name == moves[x].targetLocationStates[a])
 								{
 									currentLocation = moves[x].targetLocation;
+									makeImage();
 									return true;
 								}
 							}
@@ -303,6 +304,46 @@ function tryToMove()
 
 	return false;
 }
+
+function makeImage()
+{
+	document.getElementById("image").src="";
+
+	if (canSee)
+	{
+		for (var x = 0; x < pictures.length; x++)
+		{
+
+			if (pictures[x].location == getCurrentLocation().name)
+			{
+				document.getElementById("image").src=pictures[x].fileName;
+				return;
+			}
+			
+		}
+	}
+	
+}
+
+class Picture{
+
+	constructor(location,fileName)
+	{
+		this.location = location;
+		this.fileName = fileName;
+	}
+
+}
+
+function addPicture(location, fileName)
+{
+	pictures.push(new Picture(location,fileName));
+}
+
+
+var pictures = [];
+var canSee = true; // starts false
+
 
 function getState(location)
 {	

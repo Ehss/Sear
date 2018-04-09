@@ -24,6 +24,10 @@ addMove("GuestBedroom", ["Normal"], "Hallway", ["Normal"], ["Go North","North","
 
 currentLocation = "MyBedroom";
 
+addPicture("MyBedroom","dragonballs.png");
+addPicture("Hallway","dragonballs2.png");
+addPicture("GuestBedroom","dragonball.png");
+
 var apple = new Item("Apple");
 apple.addState(new State("Normal","The apple is shiny and red. Looks good enough to eat!"));
 

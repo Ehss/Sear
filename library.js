@@ -221,21 +221,24 @@ function addStateDescripToLocation(location, state, description)
 
 function lookAtRoom()
 {
-	write(getCurrentLocation().look());
-
+	var description = getCurrentLocation().look();
+	
 	if (getCurrentLocation().items.length > 0)
 	{
-		write("You see: ");
+		description += "<br><br>You see: ";
 		for (var x = 0; x < getCurrentLocation().items.length; x++)
 		{
-			write(getCurrentLocation().items[x].name);
+			description += "<br>" + getCurrentLocation().items[x].name;
 		}
 	}
+
+	write(description);	
 }
 
 function write(n)
 {
-	document.getElementById("consoleText").innerHTML += "<p>" + n + "</p>";
+	document.getElementById("consoleText").innerHTML = "<p>" + n + "</p>";
+	//document.getElementById("consoleText").innerHTML += "<p>" + n + "</p>";
 }
 
 
@@ -486,6 +489,7 @@ input.addEventListener("keyup", function(event) {
   if (event.keyCode === 13) {
     // Trigger the button element with a click
     userInput = document.getElementById("myInput").value;
+    document.getElementById("recentInput").innerHTML = "<p>"+userInput+"</p>";
     write("<span class='userInput'>"+userInput+"</span>");
     userInput = formated(userInput);
 

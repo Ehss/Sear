@@ -33,5 +33,3 @@ apple.addState(new State("Normal","The apple is shiny and red. Looks good enough
 
 
 addItemToLocation(apple, "MyBedroom");
-
-

@@ -291,6 +291,7 @@ function tryToMove()
 								{
 									currentLocation = moves[x].targetLocation;
 									makeImage();
+
 									return true;
 								}
 							}
@@ -321,6 +322,16 @@ function makeImage()
 			}
 			
 		}
+	}
+	
+}
+
+function playAudio(name)
+{
+	if (canHear)
+	{
+		var audio = new Audio(name);
+		audio.play();
 	}
 	
 }
@@ -514,6 +525,12 @@ function addPossibleAction(conditions,actions)
 	
 }
 
+function playSound(name)
+{
+	var audio = new Audio(name);
+	audio.play();
+}
+
 //////////////////////////////////////////////
 ////////////// Start the Game/////////////////
 //////////////////////////////////////////////
@@ -538,5 +555,7 @@ input.addEventListener("keyup", function(event) {
     interpretText();
   }
 });
+
+
 
 

@@ -241,21 +241,24 @@ function addStateDescripToLocation(location, state, description)
 
 function lookAtRoom()
 {
-	write(getCurrentLocation().look());
-
+	var description = getCurrentLocation().look();
+	
 	if (getCurrentLocation().items.length > 0)
 	{
-		write("You see: ");
+		description += "<br><br>You see: ";
 		for (var x = 0; x < getCurrentLocation().items.length; x++)
 		{
-			write(getCurrentLocation().items[x].name);
+			description += "<br>" + getCurrentLocation().items[x].name;
 		}
 	}
+
+	write(description);	
 }
 
 function write(n)
 {
-	document.getElementById("consoleText").innerHTML += "<p>" + n + "</p>";
+	document.getElementById("consoleText").innerHTML = "<p>" + n + "</p>";
+	//document.getElementById("consoleText").innerHTML += "<p>" + n + "</p>";
 }
 
 
@@ -307,6 +310,22 @@ function tryToMove()
 								if (getState(moves[x].targetLocation).name == moves[x].targetLocationStates[a])
 								{
 									currentLocation = moves[x].targetLocation;
+									console.log(currentLocation);
+									if (currentLocation == "MyBedroom")
+									{
+										changeMasterVolume(1);
+									}
+									else if (currentLocation == "Hallway")
+									{
+										changeMasterVolume(0.5);
+									}
+									else
+									{
+										changeMasterVolume(0);
+									}
+									
+									makeImage();
+
 									return true;
 								}
 							}
@@ -320,6 +339,55 @@ function tryToMove()
 
 	return false;
 }
+
+function makeImage()
+{
+	document.getElementById("image").src="";
+
+	if (canSee)
+	{
+		for (var x = 0; x < pictures.length; x++)
+		{
+
+			if (pictures[x].location == getCurrentLocation().name)
+			{
+				document.getElementById("image").src=pictures[x].fileName;
+				return;
+			}
+			
+		}
+	}
+	
+}
+
+function playAudio(name)
+{
+	if (canHear)
+	{
+		var audio = new Audio(name);
+		audio.play();
+	}
+	
+}
+
+class Picture{
+
+	constructor(location,fileName)
+	{
+		this.location = location;
+		this.fileName = fileName;
+	}
+
+}
+
+function addPicture(location, fileName)
+{
+	pictures.push(new Picture(location,fileName));
+}
+
+
+var pictures = [];
+var canSee = true; // starts false
 
 function getState(location)
 {	
@@ -348,6 +416,7 @@ function interpretText()
 				playerInventory.push(getCurrentLocation().items[x]);
 				write("You got the " + formated(getCurrentLocation().items[x].name) + ".");
 				getCurrentLocation().items.splice(x,1);
+				playSound("open-door.mp3");
 				return;
 			}
 		}
@@ -364,6 +433,7 @@ function interpretText()
 				getCurrentLocation().addItem(playerInventory[x]);
 				write("You dropped the " + formated(playerInventory[x].name) + ".");
 				playerInventory.splice(x,1);
+				playSound("close-door.mp3");
 				return;
 			}
 		}
@@ -591,6 +661,34 @@ function addPossibleAction(conditions,results,thingsToCarryOut,successMessage)
 
 }
 
+var audios = [];
+
+function stopSounds()
+{
+	for (var x = 0; x < audios.length; x++)
+	{
+		audios[x].pause();
+		audios[x].currentTime = 0;
+		audios.splice(x,1);
+		x--;
+	}
+}
+
+function playSound(name)
+{
+	audios.push(new Audio(name));
+	audios[audios.length-1].play();
+
+}
+
+function changeMasterVolume(amount)
+{
+	for (var x = 0; x < audios.length; x++)
+	{
+		audios[x].volume = amount;
+	}
+}
+
 //////////////////////////////////////////////
 ////////////// Start the Game/////////////////
 //////////////////////////////////////////////
@@ -607,6 +705,7 @@ input.addEventListener("keyup", function(event) {
   if (event.keyCode === 13) {
     // Trigger the button element with a click
     userInput = document.getElementById("myInput").value;
+    document.getElementById("recentInput").innerHTML = "<p>"+userInput+"</p>";
     write("<span class='userInput'>"+userInput+"</span>");
     userInput = formated(userInput);
 
@@ -614,3 +713,6 @@ input.addEventListener("keyup", function(event) {
     interpretText();
   }
 });
+
+playSound("Lotus Blossom.mp3");
+audios[0].loop = true;

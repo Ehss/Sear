@@ -6,6 +6,8 @@ var moves = [];
 
 var playerInventory = [];
 
+var actions = [];
+
 // Classes
 
 class State{
@@ -103,6 +105,24 @@ class Location{
 	look()
 	{
 		return this.states[this.activeState].look();
+	}
+
+	changeToState(newState)
+	{
+		for (var x = 0; x < this.states.length; x++)
+		{
+			if (this.states[x].name == newState)
+			{
+				this.activeState = x;
+				return;
+			}
+		}
+		console.log(this.name + " does not have a state of '" + newState + "'.");
+	}
+
+	getState()
+	{
+		return this.states[this.activeState].name;
 	}
 }
 
@@ -221,24 +241,21 @@ function addStateDescripToLocation(location, state, description)
 
 function lookAtRoom()
 {
-	var description = getCurrentLocation().look();
-	
+	write(getCurrentLocation().look());
+
 	if (getCurrentLocation().items.length > 0)
 	{
-		description += "<br><br>You see: ";
+		write("You see: ");
 		for (var x = 0; x < getCurrentLocation().items.length; x++)
 		{
-			description += "<br>" + getCurrentLocation().items[x].name;
+			write(getCurrentLocation().items[x].name);
 		}
 	}
-
-	write(description);	
 }
 
 function write(n)
 {
-	document.getElementById("consoleText").innerHTML = "<p>" + n + "</p>";
-	//document.getElementById("consoleText").innerHTML += "<p>" + n + "</p>";
+	document.getElementById("consoleText").innerHTML += "<p>" + n + "</p>";
 }
 
 
@@ -290,22 +307,6 @@ function tryToMove()
 								if (getState(moves[x].targetLocation).name == moves[x].targetLocationStates[a])
 								{
 									currentLocation = moves[x].targetLocation;
-									console.log(currentLocation);
-									if (currentLocation == "MyBedroom")
-									{
-										changeMasterVolume(1);
-									}
-									else if (currentLocation == "Hallway")
-									{
-										changeMasterVolume(0.5);
-									}
-									else
-									{
-										changeMasterVolume(0);
-									}
-									
-									makeImage();
-
 									return true;
 								}
 							}
@@ -319,56 +320,6 @@ function tryToMove()
 
 	return false;
 }
-
-function makeImage()
-{
-	document.getElementById("image").src="";
-
-	if (canSee)
-	{
-		for (var x = 0; x < pictures.length; x++)
-		{
-
-			if (pictures[x].location == getCurrentLocation().name)
-			{
-				document.getElementById("image").src=pictures[x].fileName;
-				return;
-			}
-			
-		}
-	}
-	
-}
-
-function playAudio(name)
-{
-	if (canHear)
-	{
-		var audio = new Audio(name);
-		audio.play();
-	}
-	
-}
-
-class Picture{
-
-	constructor(location,fileName)
-	{
-		this.location = location;
-		this.fileName = fileName;
-	}
-
-}
-
-function addPicture(location, fileName)
-{
-	pictures.push(new Picture(location,fileName));
-}
-
-
-var pictures = [];
-var canSee = true; // starts false
-
 
 function getState(location)
 {	
@@ -397,7 +348,6 @@ function interpretText()
 				playerInventory.push(getCurrentLocation().items[x]);
 				write("You got the " + formated(getCurrentLocation().items[x].name) + ".");
 				getCurrentLocation().items.splice(x,1);
-				playSound("open-door.mp3");
 				return;
 			}
 		}
@@ -414,12 +364,11 @@ function interpretText()
 				getCurrentLocation().addItem(playerInventory[x]);
 				write("You dropped the " + formated(playerInventory[x].name) + ".");
 				playerInventory.splice(x,1);
-				playSound("close-door.mp3");
 				return;
-
 			}
 		}
 		write("You don't have the " + text + ".");
+		return;
 	}
 	else if (text.startsWith("check ") || text.startsWith("look at "))
 	{
@@ -436,24 +385,28 @@ function interpretText()
 		if (item != null)
 		{
 			write(item.look());
+			return;
 		}
 		else
 		{
-
 			write("There is no " + text + " to look at.");
+			return;
 		}
 	}
 	else if (text == "look")
 	{
 		lookAtRoom();
+		return;
 	}
 	else if (tryToMove())
 	{
 		lookAtRoom();
+		return;
 	}
 	else if (isDirectionalMove(text))
 	{
 		write("You cannot move that way.");
+		return;
 	}
 	else if (text == "look at inventory" || text == "inventory")
 	{
@@ -471,18 +424,113 @@ function interpretText()
 				itemText += playerInventory[x].name;
 			}
 			write(itemText);
+			return;
 		}
 		else
 		{
-			write ("You are carrying nothing.")
+			write ("You are carrying nothing.");
+			return;
 		}
 	}
-
 	else
 	{
-		write("Sorry, I don't understand");
+		var tripped = false;
+		console.log(actions.length);
+		for (var x = 0; x < actions.length; x++)
+		{
+			var action = actions[x];
+			for(var y = 0; y < action[2].length; y++)
+			{
+				if (text == action[2][y])
+				{
+					tripped = true;
+					break;
+				}
+				tripped = false;
+			}
+			if (tripped)
+			{
+				//checking conditions
+				var conditionsMet = true;
+				var conditions = action[0];
+				for (var y = 0; y < conditions.length; y++)
+				{
+					if (conditions[y][0] == "itemInArea")
+					{
+						if (itemInArea(conditions[y][1]))
+						{
+
+						}
+						else
+						{
+							write("There is no " + conditions[y][1] + " here.");
+							return;
+						}
+					}
+
+					else if (conditions[y][0] == "currentLocation")
+					{
+						if (getCurrentLocation().name == conditions[y][1])
+						{
+
+						}
+						else
+						{
+							write("B Sorry, I don't understand");
+							return;
+						}
+					}
+
+					else if (conditions[y][0] == "locationState")
+					{	
+						var stateMet = false;
+						for (var z = 0; z < conditions[y][2].length; z++)
+						{
+							if (conditions[y][2][z] == getLocation(conditions[y][1]).getState())
+							{
+								stateMet = true;
+								break;
+							}
+						}
+						if (!stateMet)
+						{
+							write("You can't do that now.");
+							return;
+						}
+
+					}
+					// other conditions
+
+				}
+
+				// all conditions met
+
+				var results = action[1];
+
+				for (var y = 0; y < results.length; y++)
+				{
+					if (results[y][0] == "changeLocationState")
+					{
+						getLocation(results[y][1]).changeToState(results[y][2]);
+					}
+
+					// other results
+				}
+
+				write(actions[x][3]);	
+				return;
+
+			}
+		}
+
+		write("A Sorry, I don't understand");
+		return;
 	}
 
+
+	
+	write("Sorry, I don't understand");
+	return;
 
 }
 
@@ -534,40 +582,13 @@ function itemInArea(name)
 
 function formated(n)
 {
-	return n.trim().toLowerCase();
+	return n.trim().toLowerCase().replace(/[.,\/#?!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ");
 }
 
-function addPossibleAction(conditions,actions)
+function addPossibleAction(conditions,results,thingsToCarryOut,successMessage)
 {
-	
-}
+	actions.push([conditions,results,thingsToCarryOut,successMessage]);
 
-var audios = [];
-
-function stopSounds()
-{
-	for (var x = 0; x < audios.length; x++)
-	{
-		audios[x].pause();
-		audios[x].currentTime = 0;
-		audios.splice(x,1);
-		x--;
-	}
-}
-
-function playSound(name)
-{
-	audios.push(new Audio(name));
-	audios[audios.length-1].play();
-
-}
-
-function changeMasterVolume(amount)
-{
-	for (var x = 0; x < audios.length; x++)
-	{
-		audios[x].volume = amount;
-	}
 }
 
 //////////////////////////////////////////////
@@ -586,7 +607,6 @@ input.addEventListener("keyup", function(event) {
   if (event.keyCode === 13) {
     // Trigger the button element with a click
     userInput = document.getElementById("myInput").value;
-    document.getElementById("recentInput").innerHTML = "<p>"+userInput+"</p>";
     write("<span class='userInput'>"+userInput+"</span>");
     userInput = formated(userInput);
 
@@ -594,8 +614,3 @@ input.addEventListener("keyup", function(event) {
     interpretText();
   }
 });
-
-playSound("Lotus Blossom.mp3");
-audios[0].loop = true;
-
-

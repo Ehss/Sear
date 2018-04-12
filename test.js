@@ -32,4 +32,21 @@ var apple = new Item("Apple");
 apple.addState(new State("Normal","The apple is shiny and red. Looks good enough to eat!"));
 
 
-addItemToLocation(apple, "MyBedroom");
+addItemToLocation(apple, "MyBedroom");\
+
+
+addPossibleAction(
+	[
+		["itemInArea","Apple"],
+		["currentLocation","MyBedroom"],
+		["locationState","MyBedroom",["Normal"]],
+	],
+	[
+		["changeLocationState","MyBedroom","Turned"]
+	
+	],
+
+	["turn apple"],
+	"You turned the apple."
+
+);

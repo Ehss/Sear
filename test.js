@@ -1,3 +1,13 @@
+
+playSound("theone.mp3");
+audios[0].loop = true;
+audios[0].pause();
+
+audioDistances.push(["MyBedroom",0,1]);
+audioDistances.push(["Hallway",0,0.5]);
+audioDistances.push(["Bathroom",0,0.2]);
+audioDistances.push(["GuestBedroom",0,0.2]);
+
 addLocations(
   ["MyBedroom","Hallway","Bathroom","GuestBedroom",
    "MasterBedroom","Stairs","MasterBedroomBed","MasterBedroomBath"
@@ -32,7 +42,7 @@ var apple = new Item("Apple");
 apple.addState(new State("Normal","The apple is shiny and red. Looks good enough to eat!"));
 
 
-addItemToLocation(apple, "MyBedroom");\
+addItemToLocation(apple, "MyBedroom");
 
 
 addPossibleAction(
@@ -48,5 +58,53 @@ addPossibleAction(
 
 	["turn apple"],
 	"You turned the apple."
+
+);
+
+addPossibleAction(
+	[
+		["currentLocation","MyBedroom"],
+		["locationState","MyBedroom",["Normal"]],
+		["checkVar","musicOneStatus",["paused","stopped"]],
+	],
+	[
+		["playMusic","musicOne"]
+	
+	],
+
+	["play music"],
+	"The music is playing."
+
+);
+
+addPossibleAction(
+	[
+		["currentLocation","MyBedroom"],
+		["locationState","MyBedroom",["Normal"]],
+		["checkVar","musicOneStatus",["playing","paused"]],
+	],
+	[
+		["stopMusic","musicOne"]
+	
+	],
+
+	["stop music"],
+	"The music is stopped."
+
+);
+
+addPossibleAction(
+	[
+		["currentLocation","MyBedroom"],
+		["locationState","MyBedroom",["Normal"]],
+		["checkVar","musicOneStatus",["playing"]],
+	],
+	[
+		["pauseMusic","musicOne"]
+	
+	],
+
+	["pause music"],
+	"The music is paused."
 
 );

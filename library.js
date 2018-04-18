@@ -1,3 +1,4 @@
+
 var windowText = "";
 var currentLocation = "";
 
@@ -288,7 +289,7 @@ function getLocation(name)
 }
 
 
-
+var audioDistances = [];
 
 
 function tryToMove()
@@ -310,18 +311,14 @@ function tryToMove()
 								if (getState(moves[x].targetLocation).name == moves[x].targetLocationStates[a])
 								{
 									currentLocation = moves[x].targetLocation;
-									console.log(currentLocation);
-									if (currentLocation == "MyBedroom")
+
+									for (var x = 0; x < audioDistances.length; x++)
 									{
-										changeMasterVolume(1);
-									}
-									else if (currentLocation == "Hallway")
-									{
-										changeMasterVolume(0.5);
-									}
-									else
-									{
-										changeMasterVolume(0);
+										console.log(currentLocation,audioDistances[x][0]);
+										if (currentLocation == audioDistances[x][0])
+										{
+											audios[audioDistances[x][1]].volume = audioDistances[x][2];
+										}
 									}
 									
 									makeImage();
@@ -529,7 +526,7 @@ function interpretText()
 					{
 						if (itemInArea(conditions[y][1]))
 						{
-
+							break;
 						}
 						else
 						{
@@ -542,11 +539,11 @@ function interpretText()
 					{
 						if (getCurrentLocation().name == conditions[y][1])
 						{
-
+							break;
 						}
 						else
 						{
-							write("B Sorry, I don't understand");
+							write("Sorry, I don't understand");
 							return;
 						}
 					}
@@ -569,6 +566,21 @@ function interpretText()
 						}
 
 					}
+					else if (conditions[y][0] == "checkVar")
+					{
+						if (conditions[y][1] == "musicOneStatus")
+						{
+							for (var z = 0; z < conditions[y][2].length; z++)
+							{
+								if (conditions[y][2][z] == musicOneStatus)
+								{
+									break;
+								}
+							}
+							write("You can't do that now.")
+							return;
+						}
+					}
 					// other conditions
 
 				}
@@ -583,8 +595,34 @@ function interpretText()
 					{
 						getLocation(results[y][1]).changeToState(results[y][2]);
 					}
+					else if (results[y][0] == "playMusic")
+					{
+						if (results[y][1] == "musicOne")
+						{
+							audios[0].play();
+							musicOneStatus = "playing";
+						}
+					}
+					else if (results[y][0] == "stopMusic")
+					{
+						if (results[y][1] == "musicOne")
+						{
+							audios[0].pause();
+							audios[0].currentTime = 0;
+							
+						}
+					}
+
+					else if (results[y][0] == "pauseMusic")
+					{
+						if (results[y][1] == "musicOne")
+						{
+							audios[0].pause();
+						}
+					}
 
 					// other results
+
 				}
 
 				write(actions[x][3]);	
@@ -603,6 +641,8 @@ function interpretText()
 	return;
 
 }
+
+var musicOnePlaying = "stopped";
 
 
 var moveDirections = ["go west","go east","go south","go north","go up","go down",
@@ -678,7 +718,6 @@ function playSound(name)
 {
 	audios.push(new Audio(name));
 	audios[audios.length-1].play();
-
 }
 
 function changeMasterVolume(amount)
@@ -714,5 +753,5 @@ input.addEventListener("keyup", function(event) {
   }
 });
 
-playSound("Lotus Blossom.mp3");
-audios[0].loop = true;
+
+
